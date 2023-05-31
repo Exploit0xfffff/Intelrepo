@@ -1,0 +1,2 @@
+def query():
+    print("query")

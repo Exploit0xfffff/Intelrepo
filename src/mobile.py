@@ -1,0 +1,2 @@
+def mobile():
+    print("mobile")
