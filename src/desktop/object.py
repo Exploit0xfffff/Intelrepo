@@ -1,114 +1,131 @@
-import cv2
-import torch
-import torchvision
-from torchvision import models
-import numpy as np
+#!/usr/bin/env python3
+import sys
+import os
+import gi
+import importlib
+gi.require_version('Gtk', '4.0')
+gi.require_version('Adw', '1')
+gi.require_version('Notify', '0.7')
+from gi.repository import Gtk, Gio, Gdk, Notify
 
-def satellite():
-    # Check if GPU is available
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+class MainWindow(Gtk.ApplicationWindow):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        menu = Gio.Menu.new()
 
-    # Initialize Object Detection Model
-    model = models.detection.fasterrcnn_resnet50_fpn(pretrained=True)
-    model = model.to(device)
-    model.eval()
+        # Home menu
+        home_menu = Gio.Menu.new()
+        home_menu.append("Home", "win.home")
+        home_menu_item = Gio.MenuItem.new("Home", "win.home")
+        home_menu_item.set_detailed_action("win.home")
+        menu.append_item(home_menu_item)
 
-    # Load class labels for object detection
-    class_labels = [
-    'background', 'person', 'bicycle', 'car', 'motorcycle',
-    'airplane', 'bus', 'train', 'truck', 'boat', 'traffic light',
-    'fire hydrant', 'stop sign', 'parking meter', 'bench',
-    'bird', 'cat', 'dog', 'horse', 'sheep', 'cow', 'elephant',
-    'bear', 'zebra', 'giraffe', 'backpack', 'umbrella',
-    'handbag', 'tie', 'suitcase', 'frisbee', 'skis',
-    'snowboard', 'sports ball', 'kite', 'baseball bat', 'baseball glove',
-    'skateboard', 'surfboard', 'tennis racket', 'bottle',
-    'wine glass', 'cup', 'fork', 'knife', 'spoon', 'bowl',
-    'banana', 'apple', 'sandwich', 'orange', 'broccoli', 'carrot',
-    'hot dog', 'pizza', 'donut', 'cake', 'chair', 'couch',
-    'potted plant', 'bed', 'dining table',
-    'toilet', 'tv', 'laptop', 'mouse', 'remote',
-    'keyboard', 'cell phone', 'microwave', 'oven', 'toaster',
-    'sink', 'refrigerator', 'book', 'clock', 'vase',
-    'scissors', 'teddy bear', 'hair drier', 'toothbrush',
-    'rickshaw', 'motor-rickshaw',
-    'traffic cone', 'street sign', 'road barrier', 'wheelbarrow',
-    'shopping cart', 'baby stroller', 'tractor', 'helicopter',
-    'jet ski', 'airship', 'aircraft carrier', 'hoverboard',
-    'scooter', 'tricycle', 'crane', 'bulldozer', 'excavator',
-    'forklift', 'golf cart', 'trolley', 'wagon', 'binoculars',
-    'umbrella', 'walking stick', 'crutch', 'fishing rod',
-    'hammock', 'tent', 'camping stove', 'campfire', 'marshmallow',
-    'flashlight', 'compass', 'map', 'backpack', 'suitcase',
-    'briefcase', 'wallet', 'purse', 'hand fan', 'umbrella hat',
-    'sun hat', 'fedora', 'top hat', 'bicycle helmet',
-    'hard hat', 'swim cap', 'bandana', 'headband', 'sunglasses',
-    't-shirt', 'pants', 'dress', 'shirt', 'jacket', 'coat',
-    'sweater', 'hoodie', 'scarf', 'gloves', 'socks', 'shoes',
-    'boots', 'sandals', 'sneakers', 'hat', 'tie', 'belt',
-    'glasses', 'watch', 'bracelet', 'earrings', 'ring'
-    ]
+        # Satellite menu
+        satellite_menu = Gio.Menu.new()
+        satellite_menu.append("Satellite View", "win.satellite_view")
+        satellite_menu_item = Gio.MenuItem.new("Satellite View", "win.satellite_view")
+        satellite_menu_item.set_detailed_action("win.satellite_view")
+        menu.append_item(satellite_menu_item)
+        
+        # Object View menu
+        object_menu = Gio.Menu.new()
+        object_menu.append("Object View", "win.object_view")
+        object_menu_item = Gio.MenuItem.new("Object View", "win.object_view")
+        object_menu_item.set_detailed_action("win.object_view")
+        menu.append_item(object_menu_item)
+        
+        # Mobile View menu
+        mobile_menu = Gio.Menu.new()
+        mobile_menu.append("Mobile View", "win.mobile_view")
+        mobile_menu_item = Gio.MenuItem.new("Mobile View", "win.mobile_view")
+        mobile_menu_item.set_detailed_action("win.mobile_view")
+        menu.append_item(mobile_menu_item)
+        
+        # Query menu
+        query_menu = Gio.Menu.new()
+        query_menu.append("Query", "win.query")
+        query_menu_item = Gio.MenuItem.new("Query", "win.query")
+        query_menu_item.set_detailed_action("win.query")
+        menu.append_item(query_menu_item)
 
+        self.popover = Gtk.PopoverMenu()
+        self.popover.set_menu_model(menu)
 
-    # Function to perform object detection on a frame
-    def perform_object_detection(frame):
-        # Convert the frame to a numpy array
-        frame = frame.numpy()
+        self.header = Gtk.HeaderBar()
+        self.set_titlebar(self.header)
 
-        # Preprocess the frame
-        transform = torchvision.transforms.Compose([
-            torchvision.transforms.ToTensor()
-        ])
-        input_tensor = transform(frame)
-        input_tensor = input_tensor.unsqueeze(0)
-        input_tensor = input_tensor.to(device)
+        self.hamburger = Gtk.MenuButton()
+        self.hamburger.set_popover(self.popover)
+        self.hamburger.set_icon_name("open-menu-symbolic")
+        self.header.pack_start(self.hamburger)
 
-        # Perform object detection
-        with torch.no_grad():
-            predictions = model(input_tensor)
+        # Initialize the notification system
+        Notify.init("Deep-Actions-Experimental")
 
-        # Move predictions to CPU for further processing
-        predictions = [{k: v.to(torch.device('cpu')) for k, v in pred.items()} for pred in predictions]
+        action = Gio.SimpleAction.new("home")
+        action.connect("activate", self.home_menu)
+        self.add_action(action)
 
-        # Extract the bounding boxes, labels, and scores
-        boxes = predictions[0]['boxes'].numpy().astype(int)
-        labels = predictions[0]['labels'].numpy()
-        scores = predictions[0]['scores'].numpy()
+        action = Gio.SimpleAction.new("satellite_view")
+        action.connect("activate", self.satellite_menu)
+        self.add_action(action)
+        
+        action = Gio.SimpleAction.new("object_view")
+        action.connect("activate", self.object_menu)
+        self.add_action(action)
+        
+        action = Gio.SimpleAction.new("mobile_view")
+        action.connect("activate", self.mobile_menu)
+        self.add_action(action)
+        
+        action = Gio.SimpleAction.new("query")
+        action.connect("activate", self.query_menu)
+        self.add_action(action)
 
-        # Draw bounding boxes and labels on the frame
-        for box, label, score in zip(boxes, labels, scores):
-            if score > 0.5:  # Set a threshold for the confidence score
-                x1, y1, x2, y2 = box
-                cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
-                cv2.putText(frame, class_labels[label], (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
+    def home_menu(self, action, parameter):
+        try:
+            home_module = importlib.import_module("home")
+            home_module.home()  # Assuming there is a function called 'home' in the 'home' module
+        except ImportError:
+            print("Failed to import 'home' module.")
 
-        return frame
+    def satellite_menu(self, action, parameter):
+        try:
+            satellite_module = importlib.import_module("satellite")
+            satellite_module.satellite()  # Assuming there is a function called 'satellite' in the 'satellite' module
+        except ImportError:
+            print("Failed to import 'satellite' module.")
+            
+    def object_menu(self, action, parameter):
+        try:
+            object_module = importlib.import_module("object")
+            object_module.object()  # Assuming there is a function called 'object' in the 'object' module
+        except ImportError:
+            print("Failed to import 'object' module.")
+    
+    def mobile_menu(self, action, parameter):
+        try:
+            mobile_module = importlib.import_module("mobile")
+            mobile_module.mobile()  # Assuming there is a function called 'mobile' in the 'mobile' module
+        except ImportError:
+            print("Failed to import 'mobile' module.")
+            
+    def query_menu(self, action, parameter):
+        try:
+            query_module = importlib.import_module("query")
+            query_module.query()  # Assuming there is a function called 'query' in the 'query' module
+        except ImportError:
+            print("Failed to import 'query' module.")
 
-    # Main loop
-    cap = cv2.VideoCapture(0)  # Open the camera
+class MyApp(Gtk.Application):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.connect('activate', self.on_activate)
 
-    while True:
-        # Read a frame from the camera
-        ret, frame = cap.read()
-        if not ret:
-            break
+    def on_activate(self, app):
+        self.win = MainWindow(application=app, title="Deep-Actions-Experimental")
+        self.win.present()
 
-        # Move frame to GPU for object detection
-        frame = torch.from_numpy(frame).to(device)
-
-        # Perform object detection on the frame
-        frame_with_objects = perform_object_detection(frame)
-
-        # Display the frame
-        cv2.imshow('Satellite-Oriented Object Detection', frame_with_objects)
-
-        # Check for key press to exit the loop
-        if cv2.waitKey(1) == ord('q'):
-            break
-
-    # Release the video capture and close the windows
-    cap.release()
-    cv2.destroyAllWindows()
-
-# Call the satellite function
-satellite()
+if __name__ == "__main__":
+    app = MyApp(application_id='org.PenetrationApp.GtkApplication')
+    app.run(sys.argv)
