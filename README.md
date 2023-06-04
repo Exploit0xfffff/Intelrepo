@@ -1,7 +1,7 @@
 # Deep Actions Experimental
 The project aims to develop a real-time object detection application using live camera feed and the GTK 4.0 library. The application captures video frames from a connected camera, processes them using a custom-trained TensorFlow model, and displays the processed frames with object detection annotations in a GTK window.
 
-The main components of the project are as follows:
+The main Desktop components of the project are as follows:
 
 1. **LiveCameraWindow**: This class represents the main GTK window where the live camera feed and object detection results will be displayed. It initializes the window, sets its title and size, and creates a Gtk.Image widget to show the processed frames. The `update_frame` method is responsible for continuously capturing frames from the camera, processing them, and updating the Gtk.Image widget with the processed frames.
 
