@@ -1,4 +1,4 @@
-Code Description and Future Features (GitHub Description):
+Code Description and Future Features :
 
 This Python script, `main.py`, implements real-time object detection using a pre-trained Faster R-CNN model. It captures frames from a video source, performs object detection on each frame, and displays the processed frames with bounding boxes around detected objects in a graphical user interface (GUI) window. The script is built using OpenCV, TorchVision, and GTK.
 
