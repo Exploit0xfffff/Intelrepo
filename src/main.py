@@ -23,7 +23,7 @@ COCO_CLASSES = [
     'donut', 'cake', 'chair', 'couch', 'potted plant', 'bed', 'N/A', 'dining table',
     'N/A', 'N/A', 'toilet', 'N/A', 'tv', 'laptop', 'mouse', 'remote', 'keyboard', 'cell phone',
     'microwave', 'oven', 'toaster', 'sink', 'refrigerator', 'N/A', 'book',
-    'clock', 'vase', 'scissors', 'teddy bear', 'hair drier', 'toothbrush'
+    'clock', 'vase', 'scissors', 'teddy bear', 'hair drier', 'toothbrush', 'rikshaw'
 ]
 
 def perform_object_detection(model, device, frame):
@@ -94,7 +94,7 @@ class UpdateFrameThread(threading.Thread):
 class ObjectDetectionWindow(Gtk.ApplicationWindow):
     def __init__(self, application):
         super().__init__(application=application)
-        self.set_title("Road Object Detection")
+        self.set_title("DeepActionsExperimental")
         self.set_default_size(640, 480)
 
         self.model, self.device = object_detection_setup()
