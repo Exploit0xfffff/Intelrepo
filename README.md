@@ -16,3 +16,5 @@ Then, a GTK application is created, and the `activate` signal is connected to a 
 Once the GTK application is terminated, the video capture object is released to free the camera resources.
 
 To use this code for your project, you need to implement the `process_frame` method with your custom object detection logic based on your trained TensorFlow model. Additionally, you should ensure that you have the necessary dependencies installed, such as OpenCV, TensorFlow, and GTK 4.0. 
+
+![Screenshot from 2023-06-09 22-00-49](https://github.com/Exploit0xfffff/Deep-Actions-Experimental/assets/81065703/82823387-8b6e-4cfe-8a73-055d0cc5b858)
