@@ -2,7 +2,7 @@ import cv2
 import gi
 import torch
 import torchvision
-from torchvision.models.detection.faster_rcnn import FasterRCNN, FastRCNNPredictor
+from torchvision.models.detection.faster_rcnn import FasterRCNN
 from torchvision.models.detection.backbone_utils import resnet_fpn_backbone
 import os
 import numpy as np
@@ -93,10 +93,12 @@ class UpdateFrameThread(threading.Thread):
         self.running = False
 
 class ObjectDetectionWindow(Gtk.ApplicationWindow):
-    def __init__(self, application):
+    def __init__(self, application, capture_thread):
         super().__init__(application=application)
-        self.set_title("Satellite-Oriented Object Detection")
+        self.set_title("DeepActionsExperimental")
         self.set_default_size(640, 480)
+
+        self.capture_thread = capture_thread
 
         self.model, self.device = object_detection_setup()
 
@@ -142,9 +144,6 @@ class ObjectDetectionApp(Gtk.Application):
     def __init__(self):
         super().__init__()
 
-    def do_startup(self):
-        Gtk.Application.do_startup(self)
-
     def do_activate(self):
         self.cap = cv2.VideoCapture(0)
         if not self.cap.isOpened():
@@ -154,8 +153,7 @@ class ObjectDetectionApp(Gtk.Application):
         self.capture_thread = FrameCaptureThread(self.cap)
         self.capture_thread.start()
 
-        win = ObjectDetectionWindow(self)
-        win.capture_thread = self.capture_thread
+        win = ObjectDetectionWindow(self, self.capture_thread)
         win.connect("destroy", self.on_destroy)
         win.present()
 
