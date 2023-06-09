@@ -37,7 +37,7 @@ def perform_object_detection(model, device, frame):
 
     frame_with_objects = frame.permute(1, 2, 0).mul(255).byte().numpy()
     num_objects = 0
-     for pred in predictions:
+    for pred in predictions:
         labels = pred['labels'].numpy()
         scores = pred['scores'].numpy()
         boxes = pred['boxes'].numpy().astype(int)
