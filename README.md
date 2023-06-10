@@ -22,9 +22,6 @@ Future Development:
 
 By adding these future features, the script can be expanded into a more comprehensive object detection and monitoring system with enhanced user interaction and geographical visualization capabilities.
 
-project/
-│
-├── gpt/
-│   └── gpt_caption.py
-│
-└── main.py
+![image](https://github.com/Exploit0xfffff/Deep-Actions-Experimental/assets/81065703/859ec1be-8f2e-4e4d-a8d7-ebdc2177a055)
+
+gpt pre-train so fast comming soon
