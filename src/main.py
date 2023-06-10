@@ -87,7 +87,6 @@ class UpdateFrameThread(threading.Thread):
     def run(self):
         while self.running:
             self.window.update_frame()
-            time.sleep(0.01)  # Sleep for 10 milliseconds
 
     def stop(self):
         self.running = False
@@ -107,6 +106,10 @@ class ObjectDetectionWindow(Gtk.ApplicationWindow):
 
         self.update_frame_thread = UpdateFrameThread(self)
         self.update_frame_thread.start()
+
+        # Make the window resizable and add maximize, minimize, and close buttons
+        self.set_resizable(True)
+        self.set_decorated(True)
 
     def update_frame(self):
         frame = self.capture_thread.frame
