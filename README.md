@@ -1,3 +1,13 @@
+## Title: Penetration App -  cyber security  in one base
+
+⬇️ **Download**
+
+```
+    git clone https://github.com/Exploit0xfffff/Deep-Actions-Experimental
+    cd Deep-Actions-Experimental
+    pip install -r requirements.txt
+```
+
 Code Description and Future Features :
 
 This Python script, `main.py`, implements real-time object detection using a pre-trained Faster R-CNN model. It captures frames from a video source, performs object detection on each frame, and displays the processed frames with bounding boxes around detected objects in a graphical user interface (GUI) window. The script is built using OpenCV, TorchVision, and GTK.
