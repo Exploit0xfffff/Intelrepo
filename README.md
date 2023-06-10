@@ -22,3 +22,9 @@ Future Development:
 
 By adding these future features, the script can be expanded into a more comprehensive object detection and monitoring system with enhanced user interaction and geographical visualization capabilities.
 
+project/
+│
+├── gpt/
+│   └── gpt_caption.py
+│
+└── main.py
