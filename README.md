@@ -54,6 +54,7 @@ Video Capture after ->
 - two development stages are there 
 - 1) GUI with GTK application should be fix the bugs & create upload button
 - 2) the coconames & openai library connection should be on all menu items 
+- 3) Release apllication in Ubuntu os 
 
 #### Ending The Project(DUE TO PLACEMENT HADACHE FINISING PROJECT UPTO HERE WILL BE COMPLETE)
 
