@@ -35,9 +35,18 @@ By adding these future features, the script can be expanded into a more comprehe
 
 before ->
 
-![Alt text](OIP.jpg)
+![OIP](https://github.com/Exploit0xfffff/Deep-Actions-Experimental/assets/81065703/ae960bdc-79f1-4bd7-8659-ab774d0c8684)
+
 
 after ->
 
-![Alt text](image.jpg)
+![image](https://github.com/Exploit0xfffff/Deep-Actions-Experimental/assets/81065703/05cdb353-4d81-4b92-93f5-126dd941052c)
 
+before ->
+
+https://github.com/Exploit0xfffff/Deep-Actions-Experimental/assets/81065703/d8a39a03-2458-4f28-9099-15a227669734
+
+
+after ->
+
+https://github.com/Exploit0xfffff/Deep-Actions-Experimental/assets/81065703/f0bf5d72-f4e9-4728-8ff6-5cc8d4c02ae8
