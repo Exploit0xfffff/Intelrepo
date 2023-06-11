@@ -6,6 +6,7 @@
     git clone https://github.com/Exploit0xfffff/Deep-Actions-Experimental
     cd Deep-Actions-Experimental
     pip install -r requirements.txt
+    cd main/
 ```
 
 Code Description and Future Features :
@@ -32,6 +33,11 @@ Future Development:
 
 By adding these future features, the script can be expanded into a more comprehensive object detection and monitoring system with enhanced user interaction and geographical visualization capabilities.
 
-![image](https://github.com/Exploit0xfffff/Deep-Actions-Experimental/assets/81065703/859ec1be-8f2e-4e4d-a8d7-ebdc2177a055)
+before ->
 
-gpt pre-train so fast comming soon
+![Alt text](OIP.jpg)
+
+after ->
+
+![Alt text](image.jpg)
+
