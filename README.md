@@ -65,4 +65,4 @@ Video Capture after ->
 - 4) upgrade newer versions & libraries 
 
 
-- This is my first AI project, and although I haven't learned extensively about neural networks, I have implemented it using libraries such as GTK(Good To know), GUI (Graphical User Interface Toolkit), OpenCV (Open Source Computer Vision Library), COCO (Common Objects in Context) dataset, and R-CNN (Region-based Convolutional Neural Network).
+- This is my first AI project, and although I haven't learned extensively about neural networks, I have implemented it using libraries such as GTK(Good To know), GUI (Graphical User Interface Toolkit), OpenCV (Open Source Computer Vision Library), COCO (Common Objects in Context) dataset, and R-CNN (Region-based Convolutional Neural Network) Connected to CPU&GPU.
