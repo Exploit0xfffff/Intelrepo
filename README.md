@@ -49,7 +49,7 @@ https://github.com/Exploit0xfffff/Deep-Actions-Experimental/assets/81065703/d8a3
 
 Video Capture after ->
 
-[output.webm](https://github.com/Exploit0xfffff/Deep-Actions-Experimental/assets/81065703/63106c9b-ec77-4800-8c2b-3cca98f2dada)
+![video](main/img/video.mp4)
 
 - two development stages are there 
 - 1) GUI with GTK application should be fix the bugs & create upload button
