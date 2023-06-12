@@ -49,7 +49,7 @@ https://github.com/Exploit0xfffff/Deep-Actions-Experimental/assets/81065703/d8a3
 
 Video Capture after ->
 
-![video](main/img/video.mp4)
+![video](main/img/output.mp4)
 
 - two development stages are there 
 - 1) GUI with GTK application should be fix the bugs & create upload button
