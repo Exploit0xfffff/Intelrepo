@@ -24,4 +24,4 @@ jobs:
           python -m pip install opencv-python-headless torch torchvision
 
       - name: Run Object Detection
-        run: python your_script.py
+        run: main/main.py
