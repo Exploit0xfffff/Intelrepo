@@ -2,11 +2,6 @@ import gi
 gi.require_version('Gtk', '4.0')
 from gi.repository import Gtk, Gio
 import sys
-import Home
-import livecapture
-import imagecapture
-import videocapture
-
 
 class ObjectDetectionExperimental(Gtk.ApplicationWindow):
     def __init__(self, app):
@@ -53,15 +48,13 @@ class ObjectDetectionExperimental(Gtk.ApplicationWindow):
         app.add_action(quit_action)
 
     def on_Home(self, action, parameter):
-        Home.Home()
-
+        print('Home')
     def on_imagecapture(self, action, parameter):
-        imagecapture.imagecapture()
-
+        print('image')
     def on_livecapture(self, action, parameter):
-        livecapture.livecapture()
+        print('livecapture')
     def on_videocapture(self, action, parameter):
-        videocapture.videocapture()
+        print('videocapture')
 
     def on_quit(self, action, parameter):
         self.get_application().quit()
