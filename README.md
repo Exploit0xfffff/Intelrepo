@@ -32,14 +32,13 @@ live capture ->
 
 ![Screenshot from 2023-06-12 21-20-33](https://github.com/Exploit0xfffff/Deep-Actions-Experimental/assets/81065703/66d208f3-1ce2-4f82-8a2b-19b021f2c57b)
 
-- two development stages are there 
+## two development stages are there 
 - GUI with GTK application should be fix the bugs 
-- the coconames & openai library connection should be on all menu items 
 - Release apllication in Ubuntu os 
 
 #### Ending The Project(DUE TO PLACEMENT HADACHE FINISING PROJECT UPTO HERE WILL BE COMPLETE)
 
-# What-If reopns the project
+## What-If reopns the project
 - adding google maps & developing & google lens
 - upgrade Home 
 - create mobile application development process
