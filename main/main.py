@@ -7,10 +7,11 @@ from torchvision.models.detection.backbone_utils import resnet_fpn_backbone
 import os
 import numpy as np
 import threading
-import time
-gi.require_version("Gtk", "4.0")
-from gi.repository import Gtk, Gdk, GdkPixbuf, GLib,Gio
+gi.require_version('Gtk', '4.0')
+gi.require_version('Notify','0.7')
+from gi.repository import Gtk, Gdk, GdkPixbuf,Gio,Notify
 import sys
+
 COCO_CLASSES = [
     '__background__', 'person', 'bicycle', 'car', 'motorcycle', 'airplane', 'bus',
     'train', 'truck', 'boat', 'traffic light', 'fire hydrant', 'stop sign',
@@ -23,10 +24,9 @@ COCO_CLASSES = [
     'potted plant', 'bed', 'dining table', 'toilet', 'tv', 'laptop', 'mouse', 'remote',
     'keyboard', 'cell phone', 'microwave', 'oven', 'toaster', 'sink', 'refrigerator',
     'book', 'clock', 'vase', 'scissors', 'teddy bear', 'hair drier', 'toothbrush',
-    'rickshaw', 'indian bicycle', 'traffic cone', 'road sign', 'pedestrian crossing',
-    'streetlight', 'fence', 'guardrail', 'pothole', 'road', 'sidewalk', 'crosswalk',
-    'curb', 'traffic barrier', 'tunnel', 'bridge'
+    'rickshaw', 'indian bicycle'
 ]
+
 #video capture
 def perform_object_detection(model, device, frame):
     frame = torch.from_numpy(frame).permute(2, 0, 1).float() / 255.0
@@ -209,10 +209,9 @@ class UpdateFrameThread(threading.Thread):
     def stop(self):
         self.running = False
 class ObjectDetectionExperimental(Gtk.ApplicationWindow):
-    def __init__(self, app):
+    def __init__(self, app,capture_thread):
         Gtk.ApplicationWindow.__init__(self, application=app)
         self.set_default_size(800, 600)
-
         header = Gtk.HeaderBar()
         title_label = Gtk.Label.new("Deep Action Experimental")
         header.set_title_widget(title_label)
@@ -224,6 +223,8 @@ class ObjectDetectionExperimental(Gtk.ApplicationWindow):
         menu.append("Image Capture", "app.imagecapture")
         menu.append("Live Capture", "app.livecapture")
         menu.append("Video Capture", "app.videocapture")
+        menu.append("GoogleMaps", "app.GoogleMaps")
+        menu.append("GoogleLens", "app.GoogleLens")
         menu.append("Quit", "app.quit")
 
         popover = Gtk.PopoverMenu.new_from_model(menu)
@@ -248,13 +249,28 @@ class ObjectDetectionExperimental(Gtk.ApplicationWindow):
         videocapture_action.connect("activate", self.on_videocapture)
         app.add_action(videocapture_action)
 
+        GoogleMaps_action = Gio.SimpleAction.new("GoogleMaps", None)
+        GoogleMaps_action.connect("activate", self.on_GoogleMaps)
+        app.add_action(GoogleMaps_action)
+
+        GoogleLens_action = Gio.SimpleAction.new("GoogleLens", None)
+        GoogleLens_action.connect("activate", self.on_GoogleLens)
+        app.add_action(GoogleLens_action)
+
         quit_action = Gio.SimpleAction.new("quit", None)
         quit_action.connect("activate", self.on_quit)
         app.add_action(quit_action)
 
-
+        self.capture_thread = capture_thread
+        self.model, self.device = object_detection_setup()
+        self.image = Gtk.Image()
+        self.set_child(self.image)
+        self.update_frame_thread = UpdateFrameThread(self)
+        self.update_frame_thread.start()
+        self.set_decorated(True)
     def on_Home(self, action, parameter):
-        print("Home")
+        notification = Notify.Notification.new("Home", "Home has coming soon.")
+        notification.show()
     def on_imagecapture(self, action, parameter):
         filechooser = Gtk.FileChooserDialog(title="Open image", parent=self, action=Gtk.FileChooserAction.OPEN)
         filechooser.add_button("_Cancel", Gtk.ResponseType.CANCEL)
@@ -274,51 +290,39 @@ class ObjectDetectionExperimental(Gtk.ApplicationWindow):
 
         filechooser.connect("response", on_response)
     def on_livecapture(self, action, parameter):
-        capture_thread = FrameCaptureThread
-        self.capture_thread = capture_thread
+        pass
 
-        self.model, self.device = object_detection_setup()
-
-        self.image = Gtk.Image()
-        self.set_child(self.image)
-
-        self.update_frame_thread = UpdateFrameThread(self)
-        self.update_frame_thread.start()
-
-        # Make the window resizable and add maximize, minimize, and close buttons
-        self.set_resizable(True)
-        self.set_decorated(True)
     def update_frame(self):
-            frame = self.capture_thread.frame
-            if frame is None:
-                return True
-
-            print(f"Frame shape: {frame.shape}")
-
-            result = perform_object_detection(self.model, self.device, frame)
-            if result is not None:
-                frame_with_objects, _ = result
-                pixbuf = self.numpy_to_pixbuf(frame_with_objects)
-                self.image.set_from_pixbuf(pixbuf)
+        frame = self.capture_thread.frame
+        if frame is None:
             return True
 
+        print(f"Frame shape: {frame.shape}")
+
+        result = perform_object_detection(self.model, self.device, frame)
+        if result is not None:
+            frame_with_objects, _ = result
+            pixbuf = self.numpy_to_pixbuf(frame_with_objects)
+            self.image.set_from_pixbuf(pixbuf)
+
+        return True
+
     def numpy_to_pixbuf(self, frame):
-            height, width, channels = frame.shape
-            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            return GdkPixbuf.Pixbuf.new_from_data(
-                frame.tobytes(),
-                GdkPixbuf.Colorspace.RGB,
-                False,
-                8,
-                width,
-                height,
-                width * channels,
-            )
+        height, width, channels = frame.shape
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        return GdkPixbuf.Pixbuf.new_from_data(
+            frame.tobytes(),
+            GdkPixbuf.Colorspace.RGB,
+            False,
+            8,
+            width,
+            height,
+            width * channels,
+        )
 
     def do_destroy(self):
         self.update_frame_thread.stop()
         self.update_frame_thread.join()
-
     def on_videocapture(self, action, parameter):
         filechooser = Gtk.FileChooserDialog(title="Open Video", parent=self, action=Gtk.FileChooserAction.OPEN)
         filechooser.add_button("_Cancel", Gtk.ResponseType.CANCEL)
@@ -338,9 +342,16 @@ class ObjectDetectionExperimental(Gtk.ApplicationWindow):
 
         filechooser.connect("response", on_response)
 
-
+ 
     def on_quit(self, action, parameter):
         self.get_application().quit()
+    def on_GoogleMaps(self, action, parameter):
+        notification = Notify.Notification.new("GoogleMaps", "Google Maps is coming soon.")
+        notification.show()
+
+    def on_GoogleLens(self, action, parameter):
+        notification = Notify.Notification.new("GoogleLens", "Google Lens is coming soon.")
+        notification.show()
 
 
 class ObjectDetection(Gtk.Application):
@@ -349,10 +360,27 @@ class ObjectDetection(Gtk.Application):
         self.connect('activate', self.on_activate)
 
     def on_activate(self, app):
-        self.win = ObjectDetectionExperimental(app)
-        self.win.present()
+        self.cap = cv2.VideoCapture(0)
+        if not self.cap.isOpened():
+            print("Error: Unable to open the camera.")
+            return
 
+        self.capture_thread = FrameCaptureThread(self.cap)
+        self.capture_thread.start()
+
+        win = ObjectDetectionExperimental(self, self.capture_thread)
+        win.connect("destroy", self.on_destroy)
+        win.present()
+
+    def on_destroy(self, window):
+        window.capture_thread.stop()
+        window.capture_thread.join()
+        window.cap.release()
+        self.quit()
 
 if __name__ == "__main__":
+     # Initialize the GTK and Notify libraries
+    gi.require_foreign("cairo")
+    Notify.init("ObjectDetectionExperimental")
     app = ObjectDetection(application_id='org.DeepActionExperimental.GtkApplication')
     app.run(sys.argv)
