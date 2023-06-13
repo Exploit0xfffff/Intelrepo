@@ -1,3 +1,6 @@
+import gi
+gi.require_version('Gtk', '4.0')
+from gi.repository import Gtk
 import cv2
 import torch
 import torchvision
@@ -71,6 +74,44 @@ def detect_objects_in_image(input_image_path, output_image_path):
         cv2.imwrite(output_image_path, frame_with_objects)
         print(f"Output image saved to {output_image_path}")
 
-input_image_path = "img/OIP.jpg"
-output_image_path = "img/image.jpg"
-detect_objects_in_image(input_image_path, output_image_path)
+class MyWindow(Gtk.ApplicationWindow):
+    def __init__(self, app):
+        super().__init__(title="Object Detection", application=app)
+        self.set_default_size(300, 200)
+
+        # Create a button
+        button = Gtk.Button(label="Select image")
+        button.connect("clicked", self.on_button_clicked)
+
+        # Add the button to the window
+        self.set_child(button)
+
+    def on_button_clicked(self, button):
+        filechooser = Gtk.FileChooserDialog(title="Open image", parent=self, action=Gtk.FileChooserAction.OPEN)
+        filechooser.add_button("_Cancel", Gtk.ResponseType.CANCEL)
+        filechooser.add_button("_Open", Gtk.ResponseType.ACCEPT)
+
+        filechooser.show()
+
+        def on_response(dialog, response_id):
+            if response_id == Gtk.ResponseType.ACCEPT:
+                input_image_path = filechooser.get_file().get_path()
+                output_image_path = os.path.splitext(input_image_path)[0] + "_output.png"
+                print(f"Processing image: {input_image_path}")
+                detect_objects_in_image(input_image_path, output_image_path)
+                print(f"Output image saved to {output_image_path}")
+
+            filechooser.hide()
+
+        filechooser.connect("response", on_response)
+
+class MyApplication(Gtk.Application):
+    def __init__(self):
+        super().__init__()
+
+    def do_activate(self):
+        win = MyWindow(self)
+        win.present()
+
+app = MyApplication()
+app.run(None)
