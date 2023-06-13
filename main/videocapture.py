@@ -1,3 +1,6 @@
+import gi
+gi.require_version('Gtk', '4.0')
+from gi.repository import Gtk
 import cv2
 import torch
 import torchvision
@@ -6,6 +9,7 @@ from torchvision.models.detection.backbone_utils import resnet_fpn_backbone
 import os
 import numpy as np
 
+# ... (COCO_CLASSES and object detection functions) ...
 COCO_CLASSES = [
     '__background__', 'person', 'bicycle', 'car', 'motorcycle', 'airplane', 'bus',
     'train', 'truck', 'boat', 'traffic light', 'fire hydrant', 'N/A', 'stop sign',
@@ -85,7 +89,44 @@ def detect_objects_in_video(input_video_path, output_video_path):
     cap.release()
     out.release()
     print(f"Output video saved to {output_video_path}")
+class MyWindow(Gtk.ApplicationWindow):
+    def __init__(self, app):
+        super().__init__(title="Object Detection", application=app)
+        self.set_default_size(300, 200)
 
-input_video_path = "path/to/your/input/video.mp4"
-output_video_path = "path/to/your/output/video.mp4"
-detect_objects_in_video(input_video_path, output_video_path)
+        # Create a button
+        button = Gtk.Button(label="Select Video")
+        button.connect("clicked", self.on_button_clicked)
+
+        # Add the button to the window
+        self.set_child(button)
+
+    def on_button_clicked(self, button):
+        filechooser = Gtk.FileChooserDialog(title="Open Video", parent=self, action=Gtk.FileChooserAction.OPEN)
+        filechooser.add_button("_Cancel", Gtk.ResponseType.CANCEL)
+        filechooser.add_button("_Open", Gtk.ResponseType.ACCEPT)
+
+        filechooser.show()
+
+        def on_response(dialog, response_id):
+            if response_id == Gtk.ResponseType.ACCEPT:
+                input_video_path = filechooser.get_file().get_path()
+                output_video_path = os.path.splitext(input_video_path)[0] + "_output.mp4"
+                print(f"Processing video: {input_video_path}")
+                detect_objects_in_video(input_video_path, output_video_path)
+                print(f"Output video saved to {output_video_path}")
+
+            filechooser.hide()
+
+        filechooser.connect("response", on_response)
+
+class MyApplication(Gtk.Application):
+    def __init__(self):
+        super().__init__()
+
+    def do_activate(self):
+        win = MyWindow(self)
+        win.present()
+
+app = MyApplication()
+app.run(None)
