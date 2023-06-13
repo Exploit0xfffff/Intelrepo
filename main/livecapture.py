@@ -1,14 +1,16 @@
 import cv2
-import numpy as np
+import gi
 import torch
 import torchvision
 from torchvision.models.detection.faster_rcnn import FasterRCNN
 from torchvision.models.detection.backbone_utils import resnet_fpn_backbone
+import os
+import numpy as np
 import threading
 import time
-import gi
 gi.require_version("Gtk", "4.0")
-from gi.repository import Gtk,Gio,GdkPixbuf
+from gi.repository import Gtk, Gdk, GdkPixbuf, GLib
+
 COCO_CLASSES = [
     '__background__', 'person', 'bicycle', 'car', 'motorcycle', 'airplane', 'bus',
     'train', 'truck', 'boat', 'traffic light', 'fire hydrant', 'N/A', 'stop sign',
@@ -89,7 +91,7 @@ class UpdateFrameThread(threading.Thread):
     def stop(self):
         self.running = False
 
-class livecapture(Gtk.ApplicationWindow):
+class ObjectDetectionWindow(Gtk.ApplicationWindow):
     def __init__(self, application, capture_thread):
         super().__init__(application=application)
         self.set_title("DeepActionsExperimental")
@@ -154,7 +156,7 @@ class ObjectDetectionApp(Gtk.Application):
         self.capture_thread = FrameCaptureThread(self.cap)
         self.capture_thread.start()
 
-        win = livecapture(self, self.capture_thread)
+        win = ObjectDetectionWindow(self, self.capture_thread)
         win.connect("destroy", self.on_destroy)
         win.present()
 
@@ -165,4 +167,4 @@ class ObjectDetectionApp(Gtk.Application):
         self.quit()
 
 app = ObjectDetectionApp()
-app.run(None) 
+app.run(None)
