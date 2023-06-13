@@ -33,7 +33,7 @@ live capture ->
 ![Screenshot from 2023-06-12 21-20-33](https://github.com/Exploit0xfffff/Deep-Actions-Experimental/assets/81065703/66d208f3-1ce2-4f82-8a2b-19b021f2c57b)
 
 - two development stages are there 
-- 1) GUI with GTK application should be fix the bugs & create upload button
+- 1) GUI with GTK application should be fix the bugs 
 - 2) the coconames & openai library connection should be on all menu items 
 - 3) Release apllication in Ubuntu os 
 
