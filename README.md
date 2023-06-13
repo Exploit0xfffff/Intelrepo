@@ -11,13 +11,12 @@
 
 Image Capture before ->
 
-![OIP](https://github.com/Exploit0xfffff/Deep-Actions-Experimental/assets/81065703/ae960bdc-79f1-4bd7-8659-ab774d0c8684)
+![OIP (1)](https://github.com/Exploit0xfffff/Deep-Actions-Experimental/assets/81065703/76b033a5-4882-44c7-9924-6a5d2faa7095)
 
 
 Image Capture after ->
 
-![image](https://github.com/Exploit0xfffff/Deep-Actions-Experimental/assets/81065703/05cdb353-4d81-4b92-93f5-126dd941052c)
-
+![OIP (1)_output](https://github.com/Exploit0xfffff/Deep-Actions-Experimental/assets/81065703/41375075-2686-4f5a-9ae6-930d2c8d36b9)
 
 Video Capture before ->
 
