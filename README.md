@@ -7,6 +7,7 @@
     cd Deep-Actions-Experimental
     pip install -r requirements.txt
     cd main/
+    python3 main.py
 ```
 
 Image Capture before ->
@@ -32,17 +33,17 @@ live capture ->
 ![Screenshot from 2023-06-12 21-20-33](https://github.com/Exploit0xfffff/Deep-Actions-Experimental/assets/81065703/66d208f3-1ce2-4f82-8a2b-19b021f2c57b)
 
 - two development stages are there 
-- 1) GUI with GTK application should be fix the bugs 
-- 2) the coconames & openai library connection should be on all menu items 
-- 3) Release apllication in Ubuntu os 
+- GUI with GTK application should be fix the bugs 
+- the coconames & openai library connection should be on all menu items 
+- Release apllication in Ubuntu os 
 
 #### Ending The Project(DUE TO PLACEMENT HADACHE FINISING PROJECT UPTO HERE WILL BE COMPLETE)
 
 # What-If reopns the project
-- 1)adding google maps & developing & google lens
-- 2)upgrade Home 
-- 3 create mobile application development process
-- 4)upgrade newer versions & libraries 
+- adding google maps & developing & google lens
+- upgrade Home 
+- create mobile application development process
+- upgrade newer versions & libraries 
 
 
 - This is my first AI project, and although I haven't learned extensively about neural networks, I have implemented it using libraries such as GTK(Good To know), GUI (Graphical User Interface Toolkit), OpenCV (Open Source Computer Vision Library), COCO (Common Objects in Context) dataset, and R-CNN (Region-based Convolutional Neural Network) Connected to CPU&GPU.
