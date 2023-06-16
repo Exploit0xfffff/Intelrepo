@@ -10,6 +10,7 @@
     python3 main.py
 ```
 
+
 Image Capture before ->
 
 ![OIP (1)](https://github.com/Exploit0xfffff/Deep-Actions-Experimental/assets/81065703/76b033a5-4882-44c7-9924-6a5d2faa7095)
