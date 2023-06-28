@@ -1,15 +1,15 @@
 import cv2
-import numpy as np
+import gi
 import torch
 import torchvision
 from torchvision.models.detection.faster_rcnn import FasterRCNN
 from torchvision.models.detection.backbone_utils import resnet_fpn_backbone
-import threading
-import gi
 import os
-gi.require_version("Gtk", "4.0")
-from gi.repository import Gtk, Gio, GdkPixbuf
-
+import numpy as np
+import threading
+gi.require_version('Gtk', '4.0')
+gi.require_version('Notify','0.7')
+from gi.repository import Gtk, Gdk, GdkPixbuf,Gio,Notify
 import sys
 
 COCO_CLASSES = [
@@ -26,6 +26,7 @@ COCO_CLASSES = [
     'microwave', 'oven', 'toaster', 'sink', 'refrigerator', 'N/A', 'book',
     'clock', 'vase', 'scissors', 'teddy bear', 'hair drier', 'toothbrush'
 ]
+
 #video capture
 def perform_object_detection(model, device, frame):
     frame = torch.from_numpy(frame).permute(2, 0, 1).float() / 255.0
@@ -91,8 +92,7 @@ def detect_objects_in_video(input_video_path, output_video_path):
     cap.release()
     out.release()
     print(f"Output video saved to {output_video_path}")
-
-#image capture window 
+#image capture 
 def perform_object_detection(model, device, frame):
     frame = torch.from_numpy(frame).permute(2, 0, 1).float() / 255.0
     frame = frame.to(device)
@@ -142,7 +142,8 @@ def detect_objects_in_image(input_image_path, output_image_path):
         frame_with_objects, _ = result
         cv2.imwrite(output_image_path, frame_with_objects)
         print(f"Output image saved to {output_image_path}")
-#live capture window 
+
+#live capture 
 def perform_object_detection(model, device, frame):
     frame = torch.from_numpy(frame).permute(2, 0, 1).float() / 255.0
     frame = frame.to(device)
@@ -163,35 +164,21 @@ def perform_object_detection(model, device, frame):
                 x1, y1, x2, y2 = box
                 cv2.rectangle(frame_with_objects, (x1, y1), (x2, y2), (0, 255, 0), 2)
                 class_name = COCO_CLASSES[label]
-                cv2.putText(
-                    frame_with_objects,
-                    class_name,
-                    (x1, y1 - 10),
-                    cv2.FONT_HERSHEY_SIMPLEX,
-                    0.5,
-                    (0, 255, 0),
-                    2
-                )
+                cv2.putText(frame_with_objects, class_name, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
                 num_objects += 1
     print(f"Detected {num_objects} objects")
     return frame_with_objects, predictions
 
-
 def object_detection_setup():
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-    model = torchvision.models.detection.fasterrcnn_resnet50_fpn(
-        pretrained=False,
-        num_classes=91,
-        pretrained_backbone=True
-    )
+    model = torchvision.models.detection.fasterrcnn_resnet50_fpn(pretrained=False, num_classes=91, pretrained_backbone=True)
     weights = torchvision.models.detection.fasterrcnn_resnet50_fpn(pretrained=True).state_dict()
     model.load_state_dict(weights)
     model = model.to(device)
     model.eval()
 
     return model, device
-
 
 class FrameCaptureThread(threading.Thread):
     def __init__(self, cap):
@@ -209,7 +196,6 @@ class FrameCaptureThread(threading.Thread):
     def stop(self):
         self.running = False
 
-
 class UpdateFrameThread(threading.Thread):
     def __init__(self, window):
         super().__init__()
@@ -222,66 +208,10 @@ class UpdateFrameThread(threading.Thread):
 
     def stop(self):
         self.running = False
-
-
-class livecapture(Gtk.ApplicationWindow):
-    def __init__(self, application, capture_thread):
-        super().__init__(application=application)
-        self.set_title("DeepActionsExperimental")
-        self.set_default_size(640, 480)
-
-        self.capture_thread = capture_thread
-
-        self.model, self.device = object_detection_setup()
-
-        self.image = Gtk.Image()
-        self.set_child(self.image)
-
-        self.update_frame_thread = UpdateFrameThread(self)
-        self.update_frame_thread.start()
-
-        # Make the window resizable and add maximize, minimize, and close buttons
-        self.set_resizable(True)
-        self.set_decorated(True)
-
-    def update_frame(self):
-        frame = self.capture_thread.frame
-        if frame is None:
-            return True
-
-        print(f"Frame shape: {frame.shape}")
-
-        result = perform_object_detection(self.model, self.device, frame)
-        if result is not None:
-            frame_with_objects, _ = result
-            pixbuf = self.numpy_to_pixbuf(frame_with_objects)
-            self.image.set_from_pixbuf(pixbuf)
-
-        return True
-
-    def numpy_to_pixbuf(self, frame):
-        height, width, channels = frame.shape
-        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        return GdkPixbuf.Pixbuf.new_from_data(
-            frame.tobytes(),
-            GdkPixbuf.Colorspace.RGB,
-            False,
-            8,
-            width,
-            height,
-            width * channels,
-        )
-
-    def do_destroy(self):
-        self.update_frame_thread.stop()
-        self.update_frame_thread.join()
-
-
 class ObjectDetectionExperimental(Gtk.ApplicationWindow):
-    def __init__(self, app):
+    def __init__(self, app,capture_thread):
         Gtk.ApplicationWindow.__init__(self, application=app)
         self.set_default_size(800, 600)
-
         header = Gtk.HeaderBar()
         title_label = Gtk.Label.new("Deep Action Experimental")
         header.set_title_widget(title_label)
@@ -293,7 +223,8 @@ class ObjectDetectionExperimental(Gtk.ApplicationWindow):
         menu.append("Image Capture", "app.imagecapture")
         menu.append("Live Capture", "app.livecapture")
         menu.append("Video Capture", "app.videocapture")
-        menu.append("Helimet Image Capture","app.Helimetimage")
+        menu.append("GoogleMaps", "app.GoogleMaps")
+        menu.append("GoogleLens", "app.GoogleLens")
         menu.append("Quit", "app.quit")
 
         popover = Gtk.PopoverMenu.new_from_model(menu)
@@ -318,19 +249,28 @@ class ObjectDetectionExperimental(Gtk.ApplicationWindow):
         videocapture_action.connect("activate", self.on_videocapture)
         app.add_action(videocapture_action)
 
-        Helimetimage_action = Gio.SimpleAction.new("Helimetimage", None)
-        Helimetimage_action.connect("activate", self.on_Helimetimagecapture)
-        app.add_action(Helimetimage_action)
+        GoogleMaps_action = Gio.SimpleAction.new("GoogleMaps", None)
+        GoogleMaps_action.connect("activate", self.on_GoogleMaps)
+        app.add_action(GoogleMaps_action)
 
+        GoogleLens_action = Gio.SimpleAction.new("GoogleLens", None)
+        GoogleLens_action.connect("activate", self.on_GoogleLens)
+        app.add_action(GoogleLens_action)
 
         quit_action = Gio.SimpleAction.new("quit", None)
         quit_action.connect("activate", self.on_quit)
         app.add_action(quit_action)
 
-    #Define Home
+        self.capture_thread = capture_thread
+        self.model, self.device = object_detection_setup()
+        self.image = Gtk.Image()
+        self.set_child(self.image)
+        self.update_frame_thread = UpdateFrameThread(self)
+        self.update_frame_thread.start()
+        self.set_decorated(True)
     def on_Home(self, action, parameter):
-        print("Home")
-    #Define Image capture
+        notification = Notify.Notification.new("Home", "Home has coming soon.")
+        notification.show()
     def on_imagecapture(self, action, parameter):
         filechooser = Gtk.FileChooserDialog(title="Open image", parent=self, action=Gtk.FileChooserAction.OPEN)
         filechooser.add_button("_Cancel", Gtk.ResponseType.CANCEL)
@@ -401,46 +341,17 @@ class ObjectDetectionExperimental(Gtk.ApplicationWindow):
             filechooser.hide()
 
         filechooser.connect("response", on_response)
-        
-    #Define Livecapture
-    def on_livecapture(self, action, parameter):
-        cap = cv2.VideoCapture(0)
-        if not cap.isOpened():
-            print("Error: Unable to open the camera.")
-            return
 
-        capture_thread = FrameCaptureThread(cap)
-        capture_thread.start()
-
-        app = Gtk.Application.new("org.DeepActionExperimental.GtkApplication", Gio.ApplicationFlags.FLAGS_NONE)
-        win = livecapture(app, capture_thread)
-        win.present()
-
-        app.run()
-
-    #Define videocapture
-    def on_videocapture(self, action, parameter):
-        filechooser = Gtk.FileChooserDialog(title="Open Video", parent=self, action=Gtk.FileChooserAction.OPEN)
-        filechooser.add_button("_Cancel", Gtk.ResponseType.CANCEL)
-        filechooser.add_button("_Open", Gtk.ResponseType.ACCEPT)
-
-        filechooser.show()
-
-        def on_response(dialog, response_id):
-            if response_id == Gtk.ResponseType.ACCEPT:
-                input_video_path = filechooser.get_file().get_path()
-                output_video_path = os.path.splitext(input_video_path)[0] + "_output.mp4"
-                print(f"Processing video: {input_video_path}")
-                detect_objects_in_video(input_video_path, output_video_path)
-                print(f"Output video saved to {output_video_path}")
-
-            filechooser.hide()
-
-        filechooser.connect("response", on_response)
-    def on_Helimetimagecapture(self,action,parameter):
-        print("Helimetimagecapture")
+ 
     def on_quit(self, action, parameter):
         self.get_application().quit()
+    def on_GoogleMaps(self, action, parameter):
+        notification = Notify.Notification.new("GoogleMaps", "Google Maps is coming soon.")
+        notification.show()
+
+    def on_GoogleLens(self, action, parameter):
+        notification = Notify.Notification.new("GoogleLens", "Google Lens is coming soon.")
+        notification.show()
 
 
 class ObjectDetection(Gtk.Application):
@@ -449,10 +360,27 @@ class ObjectDetection(Gtk.Application):
         self.connect('activate', self.on_activate)
 
     def on_activate(self, app):
-        self.win = ObjectDetectionExperimental(app)
-        self.win.present()
+        self.cap = cv2.VideoCapture(0)
+        if not self.cap.isOpened():
+            print("Error: Unable to open the camera.")
+            return
 
+        self.capture_thread = FrameCaptureThread(self.cap)
+        self.capture_thread.start()
+
+        win = ObjectDetectionExperimental(self, self.capture_thread)
+        win.connect("destroy", self.on_destroy)
+        win.present()
+
+    def on_destroy(self, window):
+        window.capture_thread.stop()
+        window.capture_thread.join()
+        window.cap.release()
+        self.quit()
 
 if __name__ == "__main__":
+     # Initialize the GTK and Notify libraries
+    gi.require_foreign("cairo")
+    Notify.init("ObjectDetectionExperimental")
     app = ObjectDetection(application_id='org.DeepActionExperimental.GtkApplication')
     app.run(sys.argv)
