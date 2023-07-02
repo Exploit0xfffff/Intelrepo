@@ -1,0 +1,17 @@
+button.custom-button {
+    min-width: 150px;
+    min-height: 50px;
+    margin: 10px;
+    background-color: #3498db;
+    color: #ffffff;
+    border: none;
+    border-radius: 4px;
+}
+
+button.custom-button:hover {
+    background-color: #2980b9;
+}
+
+button.custom-button:active {
+    background-color: #1f679e;
+}
