@@ -6,7 +6,7 @@ from torchvision.models.detection.faster_rcnn import FasterRCNN_ResNet50_FPN_Wei
 import threading
 import gi
 gi.require_version("Gtk", "4.0")
-from gi.repository import Gtk, Gio, GdkPixbuf
+from gi.repository import Gtk, Gio, GdkPixbuf,Gdk
 import sys
 import os
 COCO_CLASSES = [
@@ -95,7 +95,21 @@ class UpdateFrameThread(threading.Thread):
 
     def stop(self):
         self.running = False
-#live capture
+#imagecapture
+def detect_objects_in_image(inumpyut_image_path, output_image_path):
+    model, device = object_detection_setup()
+
+    frame = cv2.imread(inumpyut_image_path)
+    if frame is None:
+        print("Error: Unable to read the inumpyut image.")
+        return
+
+    result = perform_object_detection(model, device, frame)
+    if result is not None:
+        frame_with_objects, _ = result
+        cv2.imwrite(output_image_path, frame_with_objects)
+        print(f"Output image saved to {output_image_path}")
+#live capture window
 class livecapture(Gtk.ApplicationWindow):
     def __init__(self, application, capture_thread):
         super().__init__(application=application)
@@ -177,24 +191,20 @@ def detect_objects_in_video(inumpyut_video_path, output_video_path):
     cap.release()
     out.release()
     print(f"Output video saved to {output_video_path}")
-#imagecapture
-def detect_objects_in_image(inumpyut_image_path, output_image_path):
-    model, device = object_detection_setup()
-
-    frame = cv2.imread(inumpyut_image_path)
-    if frame is None:
-        print("Error: Unable to read the inumpyut image.")
-        return
-
-    result = perform_object_detection(model, device, frame)
-    if result is not None:
-        frame_with_objects, _ = result
-        cv2.imwrite(output_image_path, frame_with_objects)
-        print(f"Output image saved to {output_image_path}")
 class ObjectDetectionExperimental(Gtk.ApplicationWindow):
     def __init__(self, app):
-        Gtk.ApplicationWindow.__init__(self, application=app)
+        super().__init__(application=app)
         self.set_default_size(800, 600)
+
+        css_provider = Gtk.CssProvider()
+        css_provider.load_from_path('style.css')
+        Gtk.StyleContext.add_provider_for_display(
+            Gdk.Display.get_default(),
+            css_provider,
+            Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
+        )
+
+        # Rest of your code...
 
         header = Gtk.HeaderBar()
         title_label = Gtk.Label.new("Deep Action Experimental")
@@ -202,43 +212,43 @@ class ObjectDetectionExperimental(Gtk.ApplicationWindow):
         header.set_show_title_buttons(True)
         self.set_titlebar(header)
 
-        menu = Gio.Menu.new()
-        menu.append("Home", "app.Home")
-        menu.append("Image Capture", "app.imagecapture")
-        menu.append("Live Capture", "app.livecapture")
-        menu.append("Video Capture", "app.videocapture")
-        menu.append("Quit", "app.quit")
+        hbox = Gtk.Box(spacing=6)
+        self.set_child(hbox)
 
-        popover = Gtk.PopoverMenu.new_from_model(menu)
-        hamburger = Gtk.MenuButton.new()
-        hamburger.set_popover(popover)
-        hamburger.set_icon_name("open-menu-symbolic")
-        header.pack_start(hamburger)
+        # Add 'Home' button to the menu
+        button = Gtk.Button.new_with_label("Home")
+        button.set_property("name", "custom-button")
+        button.connect("clicked", self.on_home_clicked)
+        hbox.append(button)
 
-        home_action = Gio.SimpleAction.new("Home", None)
-        home_action.connect("activate", self.on_Home)
-        app.add_action(home_action)
+        # Add 'Image Capture' button to the menu
+        button = Gtk.Button.new_with_label("Image Capture")
+        button.set_property("name", "custom-button")
+        button.connect("clicked", self.on_imagecapture_clicked)
+        hbox.append(button)
 
-        imagecapture_action = Gio.SimpleAction.new("imagecapture", None)
-        imagecapture_action.connect("activate", self.on_imagecapture)
-        app.add_action(imagecapture_action)
+        # Add 'Live Capture' button to the menu
+        button = Gtk.Button.new_with_label("Live Capture")
+        button.set_property("name", "custom-button")
+        button.connect("clicked", self.on_livecapture_clicked)
+        hbox.append(button)
 
-        livecapture_action = Gio.SimpleAction.new("livecapture", None)
-        livecapture_action.connect("activate", self.on_livecapture)
-        app.add_action(livecapture_action)
+        # Add 'Video Capture' button to the menu
+        button = Gtk.Button.new_with_label("Video Capture")
+        button.set_property("name", "custom-button")
+        button.connect("clicked", self.on_videocapture_clicked)
+        hbox.append(button)
 
-        videocapture_action = Gio.SimpleAction.new("videocapture", None)
-        videocapture_action.connect("activate", self.on_videocapture)
-        app.add_action(videocapture_action)
-        quit_action = Gio.SimpleAction.new("quit", None)
-        
-        quit_action.connect("activate", self.on_quit)
-        app.add_action(quit_action)
-    #Define Home
-    def on_Home(self, action, parameter):
+        # Add 'Quit' button to the menu
+        button = Gtk.Button.new_with_label("Quit")
+        button.set_property("name", "custom-button")
+        button.connect("clicked", self.on_quit_clicked)
+        hbox.append(button)
+
+    # Home
+    def on_home_clicked(self, widget):
         print("Home")
-    #Define Image capture
-    def on_imagecapture(self, action, parameter):
+    def on_imagecapture_clicked(self, widget):
         filechooser = Gtk.FileChooserDialog(title="Open image", parent=self, action=Gtk.FileChooserAction.OPEN)
         filechooser.add_button("_Cancel", Gtk.ResponseType.CANCEL)
         filechooser.add_button("_Open", Gtk.ResponseType.ACCEPT)
@@ -252,63 +262,22 @@ class ObjectDetectionExperimental(Gtk.ApplicationWindow):
                 print(f"Output image saved to {output_image_path}")
             filechooser.hide()
         filechooser.connect("response", on_response)
-    def on_livecapture(self, action, parameter):
-        pass
-    def update_frame(self):
-        frame = self.capture_thread.frame
-        if frame is None:
-            return True
-        print(f"Frame shape: {frame.shape}")
-        result = perform_object_detection(self.model, self.device, frame)
-        if result is not None:
-            frame_with_objects, _ = result
-            pixbuf = self.numpy_to_pixbuf(frame_with_objects)
-            self.image.set_from_pixbuf(pixbuf)
-        return True
-    def numpy_to_pixbuf(self, frame):
-        height, width, channels = frame.shape
-        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        return GdkPixbuf.Pixbuf.new_from_data(
-            frame.tobytes(),
-            GdkPixbuf.Colorspace.RGB,
-            False,
-            8,
-            width,
-            height,
-            width * channels,
-        )
-    def do_destroy(self):
-        self.update_frame_thread.stop()
-        self.update_frame_thread.join()
-    def on_videocapture(self, action, parameter):
-        filechooser = Gtk.FileChooserDialog(title="Open Video", parent=self, action=Gtk.FileChooserAction.OPEN)
-        filechooser.add_button("_Cancel", Gtk.ResponseType.CANCEL)
-        filechooser.add_button("_Open", Gtk.ResponseType.ACCEPT)
-        filechooser.show()
-        def on_response(dialog, response_id):
-            if response_id == Gtk.ResponseType.ACCEPT:
-                inumpyut_video_path = filechooser.get_file().get_path()
-                output_video_path = os.path.splitext(inumpyut_video_path)[0] + "_output.mp4"
-                print(f"Processing video: {inumpyut_video_path}")
-                detect_objects_in_video(inumpyut_video_path, output_video_path)
-                print(f"Output video saved to {output_video_path}")
-
-            filechooser.hide()
-        filechooser.connect("response", on_response)
-    #Define Livecapture
-    def on_livecapture(self, action, parameter):
+    def on_livecapture_clicked(self, widget):
         cap = cv2.VideoCapture(0)
         if not cap.isOpened():
             print("Error: Unable to open the camera.")
             return
+
         capture_thread = FrameCaptureThread(cap)
         capture_thread.start()
+
         app = Gtk.Application.new("org.DeepActionExperimental.GtkApplication", Gio.ApplicationFlags.FLAGS_NONE)
         win = livecapture(app, capture_thread)
+        self.live_capture_window = win  # Save the reference to the live capture window
         win.present()
         app.run()
-    #Define videocapture
-    def on_videocapture(self, action, parameter):
+
+    def on_videocapture_clicked(self, widget):
         filechooser = Gtk.FileChooserDialog(title="Open Video", parent=self, action=Gtk.FileChooserAction.OPEN)
         filechooser.add_button("_Cancel", Gtk.ResponseType.CANCEL)
         filechooser.add_button("_Open", Gtk.ResponseType.ACCEPT)
@@ -323,18 +292,21 @@ class ObjectDetectionExperimental(Gtk.ApplicationWindow):
 
             filechooser.hide()
         filechooser.connect("response", on_response)
-    def on_Helimetimagecapture(self,action,parameter):
-        print("Helimetimagecapture")
-    def on_quit(self, action, parameter):
+    def on_quit_clicked(self, widget):
         self.get_application().quit()
-
 class ObjectDetection(Gtk.Application):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.connect('startup', self.on_startup)
         self.connect('activate', self.on_activate)
+
+    def on_startup(self, app):
+        Gtk.ApplicationWindow.set_default_icon_name("deepactions")
+        self.window = ObjectDetectionExperimental(app)
+
     def on_activate(self, app):
-        self.win = ObjectDetectionExperimental(app)
-        self.win.present()
+        self.window.present()
+
 if __name__ == "__main__":
     app = ObjectDetection(application_id='org.DeepActionExperimental.GtkApplication')
     app.run(sys.argv)
