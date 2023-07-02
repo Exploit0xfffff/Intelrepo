@@ -1,16 +1,14 @@
 import cv2
-import numpy as numpy
+import numpy as np
 import torch
-import torchvision
-from torchvision.models.detection import FasterRCNN
-from torchvision.models.detection.backbone_utils import resnet_fpn_backbone
+from torchvision.models.detection import fasterrcnn_resnet50_fpn
+from torchvision.models.detection.faster_rcnn import FasterRCNN_ResNet50_FPN_Weights
 import threading
 import gi
-import os
 gi.require_version("Gtk", "4.0")
 from gi.repository import Gtk, Gio, GdkPixbuf
-import torchvision.models as models
 import sys
+import os
 COCO_CLASSES = [
     '__background__', 'person', 'bicycle', 'car', 'motorcycle', 'airplane', 'bus',
     'train', 'truck', 'boat', 'traffic light', 'fire hydrant', 'N/A', 'stop sign',
@@ -64,13 +62,7 @@ def perform_object_detection(model, device, frame):
 def object_detection_setup():
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-    model = torchvision.models.detection.fasterrcnn_resnet50_fpn(
-        pretrained=False,
-        num_classes=91,
-        pretrained_backbone=True
-    )
-    weights = torchvision.models.detection.fasterrcnn_resnet50_fpn(pretrained=True).state_dict()
-    model.load_state_dict(weights)
+    model = fasterrcnn_resnet50_fpn(weights=FasterRCNN_ResNet50_FPN_Weights.COCO_V1)
     model = model.to(device)
     model.eval()
 
@@ -90,6 +82,7 @@ class FrameCaptureThread(threading.Thread):
 
     def stop(self):
         self.running = False
+        self.cap.release()  # Release the camera
 class UpdateFrameThread(threading.Thread):
     def __init__(self, window):
         super().__init__()
@@ -154,6 +147,8 @@ class livecapture(Gtk.ApplicationWindow):
     def do_destroy(self):
         self.update_frame_thread.stop()
         self.update_frame_thread.join()
+        self.capture_thread.stop()  # Stop the capture thread
+        self.capture_thread.join()
 #videocapture
 def detect_objects_in_video(inumpyut_video_path, output_video_path):
     model, device = object_detection_setup()
