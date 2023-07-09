@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=PentrationApp
+Type=Application
+Exec=python3 /usr/share/Deep-Actions-Experimental/main.py
+Icon=/usr/share/Deep-Actions-Experimental/img/icon.png
+Categories=$CATEGORIES
+Terminal=false
