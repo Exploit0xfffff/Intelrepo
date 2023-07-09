@@ -212,6 +212,8 @@ def detect_objects_in_video(input_video_path, output_video_path):
     print(f"Output video saved to {output_video_path}")
     print(f"Time taken for capturing: {end_time - start_time} seconds")
     print(f"Frames per second: {fps}")
+
+# Define your classes here...
 class MainWindow(Gtk.ApplicationWindow):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -239,7 +241,7 @@ class MainWindow(Gtk.ApplicationWindow):
             "Live Capture Stop": "img/LiveStop.png",
             "Video Capture": "img/videocapture.png",
             "Exit": "img/exit.png",
-            "Contact Us":"img/contact-us.jpg"
+            "Contact Us": "img/contact-us.jpg"
         }
 
         # Button size
@@ -253,7 +255,8 @@ class MainWindow(Gtk.ApplicationWindow):
             btn.set_cursor_from_name('pointer')
 
             # Load image with Pixbuf and scale it
-            pixbuf = GdkPixbuf.Pixbuf.new_from_file(button_images[button])
+            img_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), button_images[button])
+            pixbuf = GdkPixbuf.Pixbuf.new_from_file(img_path)
             scaled_pixbuf = pixbuf.scale_simple(button_size, button_size, GdkPixbuf.InterpType.BILINEAR)
 
             # Create an image widget and set the scaled pixbuf to it
@@ -274,7 +277,6 @@ class MainWindow(Gtk.ApplicationWindow):
             btn.set_vexpand(True)
             btn.set_halign(Gtk.Align.CENTER)
             btn.set_valign(Gtk.Align.CENTER)
-
     def on_LiveCaptureStop_clicked(self, widget):
         if self.live_capture_window is not None:
             # Stop the capture thread and join it
@@ -353,8 +355,9 @@ class ObjectDetection(Gtk.Application):
         self.win.present()
 
         # Add the following code to load the CSS file:
+        style_css_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "style.css")
         css_provider = Gtk.CssProvider()
-        css_provider.load_from_path('style.css')
+        css_provider.load_from_path(style_css_path)
         Gtk.StyleContext.add_provider_for_display(
             Gdk.Display.get_default(),
             css_provider,
