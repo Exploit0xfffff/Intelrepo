@@ -10,6 +10,7 @@ from gi.repository import Gtk, Gio, GdkPixbuf, Gdk
 import sys
 import os
 import time
+import webbrowser
 # Define your classes here...
 COCO_CLASSES = [
     '__background__', 'person', 'bicycle', 'car', 'motorcycle', 'airplane', 'bus',
@@ -211,7 +212,6 @@ def detect_objects_in_video(input_video_path, output_video_path):
     print(f"Output video saved to {output_video_path}")
     print(f"Time taken for capturing: {end_time - start_time} seconds")
     print(f"Frames per second: {fps}")
-# The main application window goes here...
 class MainWindow(Gtk.ApplicationWindow):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -222,31 +222,58 @@ class MainWindow(Gtk.ApplicationWindow):
         # Main Page
         self.grid = Gtk.Grid()
         self.stack.add_named(self.grid, "main_page")
+
         # Buttons and pages
         buttons_methods = {
             "Image Capture": self.on_imagecapture_clicked, 
             "Live Capture": self.on_livecapture_clicked, 
             "Live Capture Stop": self.on_LiveCaptureStop_clicked, 
             "Video Capture": self.on_videocapture_clicked, 
-            "Quit": self.on_quit_clicked
+            "Exit": self.on_exit_clicked,
+            "Contact Us": self.on_contactus_clicked
         }
 
+        button_images = {
+            "Image Capture": "img/imagecapture.jpg",
+            "Live Capture": "img/Live.png",
+            "Live Capture Stop": "img/LiveStop.png",
+            "Video Capture": "img/videocapture.png",
+            "Exit": "img/exit.png",
+            "Contact Us":"img/contact-us.jpg"
+        }
+
+        # Button size
+        button_size = 300
+
         for i, button in enumerate(buttons_methods.keys()):
-            btn = Gtk.Button(label=button.capitalize())
-            btn.get_style_context().add_class("custom-button")  # Apply CSS class for custom button style
-            btn.get_style_context().add_class("custom-square-button")  # Apply CSS class for square shape
+            # Create a button with no label
+            btn = Gtk.Button()
+
+            # Set cursor
+            btn.set_cursor_from_name('pointer')
+
+            # Load image with Pixbuf and scale it
+            pixbuf = GdkPixbuf.Pixbuf.new_from_file(button_images[button])
+            scaled_pixbuf = pixbuf.scale_simple(button_size, button_size, GdkPixbuf.InterpType.BILINEAR)
+
+            # Create an image widget and set the scaled pixbuf to it
+            img = Gtk.Image.new_from_pixbuf(scaled_pixbuf)
+
+            # Set image as the child of the button
+            btn.set_child(img)
+
+            btn.get_style_context().add_class("custom-button")
+            btn.get_style_context().add_class("custom-square-button")
+            btn.set_name(button.replace(" ", "-").lower())  # Set button id for CSS styling
             btn.connect("clicked", buttons_methods[button])
-            self.grid.attach(btn, i % 3, i // 3, 1, 1)  # Arrange buttons in a 3-column grid
 
-            # Set a fixed size for the buttons
-            btn.set_size_request(150, 150)
+            self.grid.attach(btn, i % 3, i // 3, 1, 1)
 
-            # Configure button properties to expand and shrink with window
+            btn.set_size_request(button_size, button_size)
             btn.set_hexpand(True)
             btn.set_vexpand(True)
             btn.set_halign(Gtk.Align.CENTER)
             btn.set_valign(Gtk.Align.CENTER)
-
 
     def on_LiveCaptureStop_clicked(self, widget):
         if self.live_capture_window is not None:
@@ -310,12 +337,14 @@ class MainWindow(Gtk.ApplicationWindow):
 
         filechooser.connect("response", on_response)
         filechooser.show()
-    def on_quit_clicked(self, widget):
+    def on_exit_clicked(self, widget):
         self.get_application().quit()
-# The main application class goes here...
+
+    def on_contactus_clicked(self, widget):
+        webbrowser.open('mailto:exploit0xffff@gmail.com')
+
 class ObjectDetection(Gtk.Application):
     def __init__(self, **kwargs):
-        
         super().__init__(**kwargs)
         self.connect('activate', self.on_activate)
 
