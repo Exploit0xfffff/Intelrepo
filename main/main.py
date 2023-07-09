@@ -6,9 +6,11 @@ from torchvision.models.detection.faster_rcnn import FasterRCNN_ResNet50_FPN_Wei
 import threading
 import gi
 gi.require_version("Gtk", "4.0")
-from gi.repository import Gtk, Gio, GdkPixbuf,Gdk
+from gi.repository import Gtk, Gio, GdkPixbuf, Gdk
 import sys
 import os
+
+# Define your classes here...
 COCO_CLASSES = [
     '__background__', 'person', 'bicycle', 'car', 'motorcycle', 'airplane', 'bus',
     'train', 'truck', 'boat', 'traffic light', 'fire hydrant', 'N/A', 'stop sign',
@@ -26,7 +28,8 @@ COCO_CLASSES = [
     'pavement', 'sidewalk', 'guardrail', 'median', 'bridge', 'tunnel',
     'construction cone', 'construction barrier', 'pothole'
 ]
-#object detection 
+
+# Function to perform object detection goes here...
 def perform_object_detection(model, device, frame):
     frame = torch.from_numpy(frame).permute(2, 0, 1).float() / 255.0
     frame = frame.to(device)
@@ -59,6 +62,7 @@ def perform_object_detection(model, device, frame):
                 num_objects += 1
     print(f"Detected {num_objects} objects")
     return frame_with_objects, predictions
+# Function to setup object detection goes here...
 def object_detection_setup():
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -67,6 +71,8 @@ def object_detection_setup():
     model.eval()
 
     return model, device
+
+# The threading classes go here...
 class FrameCaptureThread(threading.Thread):
     def __init__(self, cap):
         super().__init__()
@@ -82,7 +88,7 @@ class FrameCaptureThread(threading.Thread):
 
     def stop(self):
         self.running = False
-        self.cap.release()  # Release the camera
+        self.cap.release()# Release the camera
 class UpdateFrameThread(threading.Thread):
     def __init__(self, window):
         super().__init__()
@@ -109,7 +115,7 @@ def detect_objects_in_image(inumpyut_image_path, output_image_path):
         frame_with_objects, _ = result
         cv2.imwrite(output_image_path, frame_with_objects)
         print(f"Output image saved to {output_image_path}")
-#live capture window
+# The LiveCapture class goes here...
 class livecapture(Gtk.ApplicationWindow):
     def __init__(self, application, capture_thread):
         super().__init__(application=application)
@@ -158,96 +164,101 @@ class livecapture(Gtk.ApplicationWindow):
             width * channels,
         )
 
-    def do_destroy(self):
+    def do_delete_event(self, event):
         self.update_frame_thread.stop()
         self.update_frame_thread.join()
         self.capture_thread.stop()  # Stop the capture thread
         self.capture_thread.join()
+        self.get_application().quit()  # End the GTK application
+        return False
+
 #videocapture
-def detect_objects_in_video(inumpyut_video_path, output_video_path):
+def detect_objects_in_video(input_video_path, output_video_path):
     model, device = object_detection_setup()
-    cap = cv2.VideoCapture(inumpyut_video_path)
+
+    cap = cv2.VideoCapture(input_video_path)
+
+    # Get video properties for output video
+    frame_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    frame_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    fps = cap.get(cv2.CAP_PROP_FPS)
+
+    # Create video writer for the output video
+    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+    out = cv2.VideoWriter(output_video_path, fourcc, fps, (frame_width, frame_height))
+
     if not cap.isOpened():
-        print("Error: Unable to open the inumpyut video.")
+        print("Error: Unable to open the input video.")
         return
-
-    width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-    height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    fps = int(cap.get(cv2.CAP_PROP_FPS))
-
-    fourcc = cv2.VideoWriter_fourcc(*'XVID')
-    out = cv2.VideoWriter(output_video_path, fourcc, fps, (width, height))
 
     while cap.isOpened():
         ret, frame = cap.read()
-        if not ret:
+        if ret:
+            result = perform_object_detection(model, device, frame)
+            if result is not None:
+                frame_with_objects, _ = result
+                out.write(frame_with_objects)
+        else:
             break
-
-        result = perform_object_detection(model, device, frame)
-        if result is not None:
-            frame_with_objects, _ = result
-            out.write(frame_with_objects)
 
     cap.release()
     out.release()
+
     print(f"Output video saved to {output_video_path}")
-class ObjectDetectionExperimental(Gtk.ApplicationWindow):
-    def __init__(self, app):
-        super().__init__(application=app)
-        self.set_default_size(800, 600)
 
-        css_provider = Gtk.CssProvider()
-        css_provider.load_from_path('style.css')
-        Gtk.StyleContext.add_provider_for_display(
-            Gdk.Display.get_default(),
-            css_provider,
-            Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
-        )
+# The main application window goes here...
+class MainWindow(Gtk.ApplicationWindow):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
-        # Rest of your code...
+        self.stack = Gtk.Stack()
+        self.set_child(self.stack)
 
-        header = Gtk.HeaderBar()
-        title_label = Gtk.Label.new("Deep Action Experimental")
-        header.set_title_widget(title_label)
-        header.set_show_title_buttons(True)
-        self.set_titlebar(header)
+        # Main Page
+        self.grid = Gtk.Grid()
+        self.stack.add_named(self.grid, "main_page")
+        # Buttons and pages
+        buttons_methods = {
+            "Image Capture": self.on_imagecapture_clicked, 
+            "Live Capture": self.on_livecapture_clicked, 
+            "Live Capture Stop": self.on_LiveCaptureStop_clicked, 
+            "Video Capture": self.on_videocapture_clicked, 
+            "Quit": self.on_quit_clicked
+        }
 
-        hbox = Gtk.Box(spacing=6)
-        self.set_child(hbox)
+        for i, button in enumerate(buttons_methods.keys()):
+            btn = Gtk.Button(label=button.capitalize())
+            btn.get_style_context().add_class("custom-button")  # Apply CSS class for custom button style
+            btn.get_style_context().add_class("custom-square-button")  # Apply CSS class for square shape
+            btn.connect("clicked", buttons_methods[button])
+            self.grid.attach(btn, i % 3, i // 3, 1, 1)  # Arrange buttons in a 3-column grid
 
-        # Add 'Home' button to the menu
-        button = Gtk.Button.new_with_label("Home")
-        button.set_property("name", "custom-button")
-        button.connect("clicked", self.on_home_clicked)
-        hbox.append(button)
+            # Set a fixed size for the buttons
+            btn.set_size_request(150, 150)
 
-        # Add 'Image Capture' button to the menu
-        button = Gtk.Button.new_with_label("Image Capture")
-        button.set_property("name", "custom-button")
-        button.connect("clicked", self.on_imagecapture_clicked)
-        hbox.append(button)
+            # Configure button properties to expand and shrink with window
+            btn.set_hexpand(True)
+            btn.set_vexpand(True)
+            btn.set_halign(Gtk.Align.CENTER)
+            btn.set_valign(Gtk.Align.CENTER)
 
-        # Add 'Live Capture' button to the menu
-        button = Gtk.Button.new_with_label("Live Capture")
-        button.set_property("name", "custom-button")
-        button.connect("clicked", self.on_livecapture_clicked)
-        hbox.append(button)
 
-        # Add 'Video Capture' button to the menu
-        button = Gtk.Button.new_with_label("Video Capture")
-        button.set_property("name", "custom-button")
-        button.connect("clicked", self.on_videocapture_clicked)
-        hbox.append(button)
+    def on_LiveCaptureStop_clicked(self, widget):
+        if self.live_capture_window is not None:
+            # Stop the capture thread and join it
+            self.live_capture_window.capture_thread.stop()
+            self.live_capture_window.capture_thread.join()
+            
+            # Stop the update frame thread and join it
+            self.live_capture_window.update_frame_thread.stop()
+            self.live_capture_window.update_frame_thread.join()
+            
+            # Destroy the window
+            self.live_capture_window.destroy()
+            
+            # Reset the window reference
+            self.live_capture_window = None
 
-        # Add 'Quit' button to the menu
-        button = Gtk.Button.new_with_label("Quit")
-        button.set_property("name", "custom-button")
-        button.connect("clicked", self.on_quit_clicked)
-        hbox.append(button)
-
-    # Home
-    def on_home_clicked(self, widget):
-        print("Home")
     def on_imagecapture_clicked(self, widget):
         filechooser = Gtk.FileChooserDialog(title="Open image", parent=self, action=Gtk.FileChooserAction.OPEN)
         filechooser.add_button("_Cancel", Gtk.ResponseType.CANCEL)
@@ -281,32 +292,41 @@ class ObjectDetectionExperimental(Gtk.ApplicationWindow):
         filechooser = Gtk.FileChooserDialog(title="Open Video", parent=self, action=Gtk.FileChooserAction.OPEN)
         filechooser.add_button("_Cancel", Gtk.ResponseType.CANCEL)
         filechooser.add_button("_Open", Gtk.ResponseType.ACCEPT)
-        filechooser.show()
+
         def on_response(dialog, response_id):
             if response_id == Gtk.ResponseType.ACCEPT:
-                inumpyut_video_path = filechooser.get_file().get_path()
-                output_video_path = os.path.splitext(inumpyut_video_path)[0] + "_output.mp4"
-                print(f"Processing video: {inumpyut_video_path}")
-                detect_objects_in_video(inumpyut_video_path, output_video_path)
+                input_video_path = filechooser.get_file().get_path()
+                output_video_path = os.path.splitext(input_video_path)[0] + "_output.mp4"
+                print(f"Processing video: {input_video_path}")
+                detect_objects_in_video(input_video_path, output_video_path)
                 print(f"Output video saved to {output_video_path}")
 
             filechooser.hide()
+
         filechooser.connect("response", on_response)
+        filechooser.show()
     def on_quit_clicked(self, widget):
         self.get_application().quit()
+# The main application class goes here...
 class ObjectDetection(Gtk.Application):
     def __init__(self, **kwargs):
+        
         super().__init__(**kwargs)
-        self.connect('startup', self.on_startup)
         self.connect('activate', self.on_activate)
 
-    def on_startup(self, app):
-        Gtk.ApplicationWindow.set_default_icon_name("deepactions")
-        self.window = ObjectDetectionExperimental(app)
-
     def on_activate(self, app):
-        self.window.present()
+        self.win = MainWindow(application=app, title="Deep Actions Experimental")
+        self.win.present()
+
+        # Add the following code to load the CSS file:
+        css_provider = Gtk.CssProvider()
+        css_provider.load_from_path('style.css')
+        Gtk.StyleContext.add_provider_for_display(
+            Gdk.Display.get_default(),
+            css_provider,
+            Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
+        )
 
 if __name__ == "__main__":
-    app = ObjectDetection(application_id='org.DeepActionExperimental.GtkApplication')
+    app = ObjectDetection(application_id='org.PenetrationApp.GtkApplication')
     app.run(sys.argv)
