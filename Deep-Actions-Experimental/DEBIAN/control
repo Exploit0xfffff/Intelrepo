@@ -4,6 +4,6 @@ Section: misc
 Priority: optional
 Architecture: all
 Maintainer: swayampakulavsspavanakasinadhsarma <exploit0xffff@gmail.com>
-Depends: python3, python3-opencv, python3-numpy, python3-torch, python3-torchvision, python3-gi, gir1.2-gtk-4.0
+Depends: python3, python3-opencv, python3-numpy, python3-pip, python3-gi, gir1.2-gtk-4.0
 Description: Alpha version of Deep Actions Experimental
  This is the alpha version of the Deep Actions Experimental application. It performs object detection using the Faster R-CNN model and provides a graphical user interface for capturing images or videos. The application requires OpenCV, NumPy, Torch, and Gtk libraries for operation.
