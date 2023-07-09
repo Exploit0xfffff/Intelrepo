@@ -14,6 +14,9 @@
     python3 main.py
 ```
 
+ui  ->
+
+![image](https://github.com/Exploit0xfffff/DeepActionsExperimental/assets/81065703/7fab3f6d-5603-40e9-957c-244236b49c96)
 
 Image Capture before ->
 
@@ -31,7 +34,6 @@ https://github.com/Exploit0xfffff/Deep-Actions-Experimental/assets/81065703/d8a3
 
 Video Capture after ->
 
-![video](main/img/output.mp4)
 
 live capture ->
 
