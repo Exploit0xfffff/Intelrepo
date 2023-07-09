@@ -37,17 +37,15 @@ live capture ->
 
 ![Screenshot from 2023-06-12 21-20-33](https://github.com/Exploit0xfffff/Deep-Actions-Experimental/assets/81065703/66d208f3-1ce2-4f82-8a2b-19b021f2c57b)
 
-## two development stages are there 
-- video capture remain issue all are fixed (comming soon) 
-- Release apllication in Ubuntu os 
+Development Stages
 
-#### Ending The Project(DUE TO PLACEMENT HADACHE FINISING PROJECT UPTO HERE WILL BE COMPLETE)
+If the project were to be reopened, the following additions and upgrades would be considered:
 
-## What-If reopns the project
-- adding google maps & developing & google lens
-- upgrade Home 
-- create mobile application development process
-- upgrade newer versions & libraries 
+    Integration of Google Maps and development of Google Lens functionality
+    Upgrading the home module
+    Mobile application development process
+    Upgrading to newer versions of libraries and frameworks
 
+Please note that this project is my first foray into AI, and while I haven't extensively studied neural networks, I have implemented this project using libraries such as GTK (Graphical User Interface Toolkit), OpenCV (Open Source Computer Vision Library), the COCO (Common Objects in Context) dataset, and R-CNN (Region-based Convolutional Neural Network) connected to both CPU and GPU. The UI has been updated, and the latest modules have been incorporated into the project.
 
-- This is my first AI project, and although I haven't learned extensively about neural networks, I have implemented it using libraries such as GTK(Good To know), GUI (Graphical User Interface Toolkit), OpenCV (Open Source Computer Vision Library), COCO (Common Objects in Context) dataset, and R-CNN (Region-based Convolutional Neural Network) Connected to CPU&GPU.
+Feel free to explore the project and provide any feedback or suggestions. Contributions are always welcome!
