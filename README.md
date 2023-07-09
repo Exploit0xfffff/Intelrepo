@@ -2,8 +2,28 @@
 
 -> This one expermental to my orgnisation for develop new things
 
-
+⬇ Download
 ⬇️ **Download**
+
+| Distribution | Format | Source |
+| ------------ | ------ | ------ |
+| Ubuntu       | deb    | completing |
+| Developer    | clone  | `git clone https://github.com/Exploit0xfffff/PenetrationApp` |
+
+### Ubuntu Installation
+
+```bash
+sudo dpkg -i Deep-Actions-Experimental.deb
+```
+
+### Uninstallation
+
+```bash
+sudo apt remove deep-actions-experimental 
+```
+
+
+🔨🔨 **Developers**🔨🔨
 
 ```
     git clone https://github.com/Exploit0xfffff/Deep-Actions-Experimental
@@ -34,6 +54,7 @@ https://github.com/Exploit0xfffff/Deep-Actions-Experimental/assets/81065703/d8a3
 
 Video Capture after ->
 
+exceded storage 
 
 live capture ->
 
