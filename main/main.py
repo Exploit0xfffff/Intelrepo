@@ -9,7 +9,7 @@ gi.require_version("Gtk", "4.0")
 from gi.repository import Gtk, Gio, GdkPixbuf, Gdk
 import sys
 import os
-
+import time
 # Define your classes here...
 COCO_CLASSES = [
     '__background__', 'person', 'bicycle', 'car', 'motorcycle', 'airplane', 'bus',
@@ -184,13 +184,15 @@ def detect_objects_in_video(input_video_path, output_video_path):
     fps = cap.get(cv2.CAP_PROP_FPS)
 
     # Create video writer for the output video
-    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+    fourcc = cv2.VideoWriter_fourcc(*'mp4v')  # or replace 'mp4v' with 'MP4V'
     out = cv2.VideoWriter(output_video_path, fourcc, fps, (frame_width, frame_height))
 
     if not cap.isOpened():
         print("Error: Unable to open the input video.")
         return
 
+    print("Started capturing...")
+    start_time = time.time()
     while cap.isOpened():
         ret, frame = cap.read()
         if ret:
@@ -200,12 +202,15 @@ def detect_objects_in_video(input_video_path, output_video_path):
                 out.write(frame_with_objects)
         else:
             break
+    end_time = time.time()
+    print("Ended capturing.")
 
     cap.release()
     out.release()
 
     print(f"Output video saved to {output_video_path}")
-
+    print(f"Time taken for capturing: {end_time - start_time} seconds")
+    print(f"Frames per second: {fps}")
 # The main application window goes here...
 class MainWindow(Gtk.ApplicationWindow):
     def __init__(self, *args, **kwargs):
