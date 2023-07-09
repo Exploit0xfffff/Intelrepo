@@ -1,0 +1,26 @@
+window.background {
+    background-image: url("img/background.png");
+    background-size: cover;
+}
+
+button.custom-button {
+    /* other styles... */
+    border: none;
+    background-color: rgba(255, 255, 255, 0);
+    /* completely transparent */
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+}
+
+button.custom-button label {
+    background-color: rgba(255, 255, 255, 0);
+    /* completely transparent */
+    color: black;
+}
+
+button.custom-button label {
+    background-color: rgba(0, 0, 0, 0.5);
+    /* semi-transparent black */
+    color: white;
+}
