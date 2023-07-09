@@ -1,8 +1,6 @@
 ## Title: DeepActionsExperimental -  ROAD OBJECT DETECTION 
 
--> This one expermental to my orgnisation for develop new things
-
-⬇ Download
+-> This one expermental to my orgnisation for develop new thing
 ⬇️ **Download**
 
 | Distribution | Format | Source |
