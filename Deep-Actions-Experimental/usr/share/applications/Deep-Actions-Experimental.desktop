@@ -1,5 +1,5 @@
 [Desktop Entry]
-Name=PentrationApp
+Name=DeepActionsExperimental
 Type=Application
 Exec=python3 /usr/share/Deep-Actions-Experimental/main.py
 Icon=/usr/share/Deep-Actions-Experimental/img/icon.png
