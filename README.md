@@ -8,7 +8,7 @@
 | Ubuntu       | .deb   | [Download](https://github.com/Exploit0xfffff/DeepActionsExperimental/releases/download/v1.0/Deep-Actions-Experimental.deb) |
 | Developer    | clone  | `git clone https://github.com/Exploit0xfffff/PenetrationApp` |
 
-### Ubuntu Installation
+### 👨🏿‍🔧👨🏿‍🔧 Ubuntu Installation 👨🏿‍🔧👨🏿‍🔧
 
 ```bash
 sudo dpkg -i Deep-Actions-Experimental.deb
@@ -16,7 +16,7 @@ sudo apt --fix-broken install
 
 ```
 
-### Uninstallation
+### 🤽🏾🤽🏾 Uninstallation 🤽🏾🤽🏾
 
 ```bash
 sudo apt remove deep-actions-experimental 
