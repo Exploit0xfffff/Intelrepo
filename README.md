@@ -5,7 +5,7 @@
 
 | Distribution | Format | Source |
 | ------------ | ------ | ------ |
-| Ubuntu       | .deb   | [Download](https://github.com/Exploit0xfffff/DeepActionsExperimental/releases/download/v1.0/Deep-Actions-Experimental.deb) |
+| Ubuntu,kali,Debian,Udroid       | Deb   | [Download](https://github.com/Exploit0xfffff/DeepActionsExperimental/releases/download/v1.0/Deep-Actions-Experimental.deb) |
 | Developer    | clone  | `git clone https://github.com/Exploit0xfffff/PenetrationApp` |
 
 ### 👨🏿‍🔧👨🏿‍🔧 Ubuntu Installation 👨🏿‍🔧👨🏿‍🔧
