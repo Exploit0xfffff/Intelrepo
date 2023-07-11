@@ -54,7 +54,7 @@ https://github.com/Exploit0xfffff/Deep-Actions-Experimental/assets/81065703/d8a3
 
 Video Capture after ->
 
-![video](https://drive.google.com/file/d/1H0fn32c_iL0m7oWUEJ5Y75oQQmAsQoXu/view?usp=sharing)
+https://drive.google.com/file/d/1H0fn32c_iL0m7oWUEJ5Y75oQQmAsQoXu/view?usp=sharing
 
 live capture ->
 
