@@ -3,3 +3,4 @@ numpy==1.22.0
 torch==1.13.1
 torchvision==0.10.0
 PyGObject==3.42.0
+pillow>=10.0.1 # not directly required, pinned by Snyk to avoid a vulnerability
