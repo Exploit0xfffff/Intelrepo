@@ -84,5 +84,4 @@ def main():
         print(f"{model_type}: {'✓ PASSED' if success else '✗ FAILED'}")
 
 if __name__ == "__main__":
-    main()    export PYTHONPATH=$PYTHONPATH:/home/kasinadhsarma/Documents/Intelrepo-main
-    pytest
+    main()
