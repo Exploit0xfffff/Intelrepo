@@ -1,6 +1,6 @@
 opencv-python==4.8.1.78
 numpy==1.22.0
-torch==2.7.0
+torch==2.8.0
 torchvision==0.10.0
 PyGObject==3.42.0
 pillow>=10.0.1 # not directly required, pinned by Snyk to avoid a vulnerability
